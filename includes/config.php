@@ -19,4 +19,4 @@ define('DB_CHARSET', 'utf8mb4');
 define('APP_NAME', 'Gestió de Material - Institut Montsià');
 
 /** Ruta base de l'aplicació (canvia si no és a l'arrel) */
-define('BASE_URL', '/0376_CAS3_Pol/');
+define('BASE_URL', '/IAW_CAS3_GRUP2/');
