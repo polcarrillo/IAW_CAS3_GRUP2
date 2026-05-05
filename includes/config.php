@@ -3,10 +3,6 @@
  * config.php
  * Configuració de la connexió a la base de dades.
  * Modifica els valors segons el teu entorn.
- *
- * @package GestioMaterial
- * @author  Alumne ASIX
- * @version 1.0
  */
 
 define('DB_HOST', 'db');
