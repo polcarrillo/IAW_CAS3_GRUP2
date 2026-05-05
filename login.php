@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 type="email"
                 id="correu"
                 name="correu"
-                placeholder="nom@alumnes.montsià.cat"
+                placeholder="nom@iesmontsia.org"
                 value="<?= htmlspecialchars($_POST['correu'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
                 required
                 autocomplete="email"
