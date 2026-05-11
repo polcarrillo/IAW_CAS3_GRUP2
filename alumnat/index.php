@@ -112,7 +112,6 @@ mostrarMissatge();
 <!-- Benvinguda -->
 <div class="card" style="background:linear-gradient(135deg,#1a4f8a,#15407a);color:white;">
     <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
-        <div style="font-size:3.5rem;">👨‍💻</div>
         <div>
             <h2 style="font-size:1.4rem;margin-bottom:0.3rem;">Benvingut/da, <?= htmlspecialchars($nomMostrat, ENT_QUOTES, 'UTF-8') ?>!</h2>
             <p style="opacity:0.85;font-size:0.9rem;">
@@ -128,17 +127,14 @@ mostrarMissatge();
 <!-- Resum -->
 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
     <div class="card" style="text-align:center;padding:1.2rem;">
-        <div style="font-size:2rem;">🖥️</div>
         <div style="font-size:2rem;font-weight:700;color:#1a4f8a;"><?= $totalDev ?></div>
         <div style="color:#666;font-size:0.85rem;">Total dispositius</div>
     </div>
     <div class="card" style="text-align:center;padding:1.2rem;">
-        <div style="font-size:2rem;">✅</div>
         <div style="font-size:2rem;font-weight:700;color:#27ae60;"><?= $actius ?></div>
         <div style="color:#666;font-size:0.85rem;">Actius</div>
     </div>
     <div class="card" style="text-align:center;padding:1.2rem;">
-        <div style="font-size:2rem;">⚠️</div>
         <div style="font-size:2rem;font-weight:700;color:<?= $ambInc > 0 ? '#e74c3c' : '#27ae60' ?>;"><?= $ambInc ?></div>
         <div style="color:#666;font-size:0.85rem;">Amb incidència</div>
     </div>
@@ -146,11 +142,10 @@ mostrarMissatge();
 
 <!-- Dispositius -->
 <div class="card">
-    <h3 style="color:#1a4f8a;margin-bottom:1.2rem;">📋 Els meus dispositius</h3>
+    <h3 style="color:#1a4f8a;margin-bottom:1.2rem;">Els meus dispositius</h3>
 
     <?php if (empty($dispositius)): ?>
         <div style="text-align:center;padding:2rem;color:#999;">
-            <div style="font-size:3rem;">📭</div>
             <p style="margin-top:0.5rem;">No tens cap dispositiu assignat.</p>
             <p style="font-size:0.85rem;margin-top:0.3rem;">Si creus que és un error, contacta amb el departament d'informàtica.</p>
         </div>
@@ -162,12 +157,12 @@ mostrarMissatge();
             $color     = $teInc ? '#e74c3c' : ($actiu ? '#27ae60' : '#ccc');
             $bg        = $teInc ? '#fff5f5' : ($actiu ? '#f0fff4' : '#fafafa');
             $icona     = match(true) {
-                str_contains(strtolower($d['tipus']), 'port') => '💻',
-                str_contains(strtolower($d['tipus']), 'tecl') => '⌨️',
-                str_contains(strtolower($d['tipus']), 'rat')  => '🖱️',
-                str_contains(strtolower($d['tipus']), 'mon')  => '🖥️',
-                str_contains(strtolower($d['tipus']), 'tab')  => '📱',
-                default => '🔧'
+                str_contains(strtolower($d['tipus']), 'port') => '',
+                str_contains(strtolower($d['tipus']), 'tecl') => '',
+                str_contains(strtolower($d['tipus']), 'rat')  => '',
+                str_contains(strtolower($d['tipus']), 'mon')  => '',
+                str_contains(strtolower($d['tipus']), 'tab')  => '',
+                default => ''
             };
         ?>
             <div style="border:2px solid <?= $color ?>;border-radius:10px;padding:1.2rem;background:<?= $bg ?>;position:relative;">
@@ -175,9 +170,9 @@ mostrarMissatge();
                 <!-- Badge estat -->
                 <div style="position:absolute;top:0.8rem;right:0.8rem;">
                     <?php if ($teInc): ?>
-                        <span class="badge-estat badge-inc">⚠️ Incidència</span>
+                        <span class="badge-estat badge-inc">Incidència</span>
                     <?php elseif ($actiu): ?>
-                        <span class="badge-estat badge-ok">✅ Actiu</span>
+                        <span class="badge-estat badge-ok">Actiu</span>
                     <?php else: ?>
                         <span class="badge-estat" style="background:#eee;color:#666;">Retornat</span>
                     <?php endif; ?>
@@ -247,7 +242,7 @@ mostrarMissatge();
 <!-- Historial -->
 <?php if (!empty($historial)): ?>
 <div class="card">
-    <h3 style="color:#1a4f8a;margin-bottom:1rem;">📁 Historial d'incidències resoltes</h3>
+    <h3 style="color:#1a4f8a;margin-bottom:1rem;">Historial d'incidències resoltes</h3>
     <table>
         <thead>
             <tr>
@@ -279,7 +274,7 @@ mostrarMissatge();
 
 <!-- Avís -->
 <div class="card" style="background:#fff8e1;border-left:4px solid #f0a500;">
-    <h4 style="color:#e67e22;margin-bottom:0.5rem;">ℹ️ Informació important</h4>
+    <h4 style="color:#e67e22;margin-bottom:0.5rem;">Informació important</h4>
     <ul style="font-size:0.88rem;color:#555;line-height:1.8;padding-left:1.2rem;">
         <li>Ets responsable del material que tens assignat. Tracta'l amb cura.</li>
         <li>Si detectes qualsevol problema, comunica-ho immediatament al professorat.</li>
