@@ -6,28 +6,28 @@ La finalitat del apartat dels professors és poder fer una gestió general dels 
 
 ---
 
-##Estructura del repositori
+## Estructura del repositori
 
 ```
-📁 IAW_CAS3_GRUP2/
-├── 📁 alumnat/
+📁 IAW_CAS3_GRUP2/ - Directori de l'aplicació web
+├── 📁 alumnat/ - Directori on es troba la pagina d'alumne
 │   └──  index.php
-├── 📁 imatges/
+├── 📁 imatges/ - Directori on es troben les imatges de la aplicació
 │   └──  montsia-removebg-preview.png
-├── 📁 includes/
+├── 📁 includes/ - Directori on es troben els arxius generals de l'aplicació
 │   ├──  auth.php
 │   ├──  config.php
 │   ├──  db.php
 │   ├──  index.php
 │   ├──  layout.php
 │   └──  logout.php
-├── 📁 professorat/
+├── 📁 professorat/ - Directori on es troben les pagines de professors
 │   ├──  alumne_dispositius.php
 │   ├──  dispositius_aula.php
 │   ├──  dispositius_tipus.php
 │   ├──  incidencies.php
 │   └──  index.php
-├── 📁 setup/
+├── 📁 setup/ - Directori on es troben els arxius necessaris per a fer el setup del servidor
 │   ├──  docker-compose.yml
 │   ├──  Dockerfile
 │   └──  iaw.sql
