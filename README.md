@@ -6,7 +6,36 @@ La finalitat del apartat dels professors és poder fer una gestió general dels 
 
 ---
 
-## 🛠️ Guia bàsica d'instal·lació
+##Estructura del repositori
+
+📁 IAW_CAS3_GRUP2/
+├── 📁 alumnat/
+│   └──  index.php
+├── 📁 imatges/
+│   └──  montsia-removebg-preview.png
+├── 📁 includes/
+│   ├──  auth.php
+│   ├──  config.php
+│   ├──  db.php
+│   ├──  index.php
+│   ├──  layout.php
+│   └──  logout.php
+├── 📁 professorat/
+│   ├──  alumne_dispositius.php
+│   ├──  dispositius_aula.php
+│   ├──  dispositius_tipus.php
+│   ├──  incidencies.php
+│   └──  index.php
+├── 📁 setup/
+│   ├── 🐳 docker-compose.yml
+│   ├── 🐳 Dockerfile
+│   └── 🗄️ iaw.sql
+├── 🐘 login.php
+└── 📄 README.md
+
+---
+
+## Guia bàsica d'instal·lació
 
 ### Requisits previs
 
