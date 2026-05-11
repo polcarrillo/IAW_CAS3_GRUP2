@@ -1,30 +1,63 @@
 # IAW_CAS3_GRUP2
 
-En aquest treball, hem de crear una aplicació web per a la gestio dels equips del centre. Aquesta haura de disposar de dos interficies diferentes, una per als alumnes i l'altra per a professors. La finalitat del apartat dels profesors es poder fer una gestió general dels equips del centre, tant com dels alumnes com de les aules, a part de gestionar els usuaris d'alumnes i incidencies. Per la part dels alumnes domes hem de disposar d'una interficie per a gestionar els dispositius dels propis alumnes.
+En aquest treball, hem de crear una aplicació web per a la gestió dels equips del centre. Aquesta haurà de disposar de dos interfícies diferents, una per als alumnes i l'altra per a professors.
 
+La finalitat del apartat dels professors és poder fer una gestió general dels equips del centre, tant dels alumnes com de les aules, a part de gestionar els usuaris d'alumnes i incidències. Per la part dels alumnes només hem de disposar d'una interfície per a gestionar els dispositius dels propis alumnes.
 
-Guia basica d'instal·lació
+---
 
-Primer que tot haurem de tenir un servidor amb docker instal·lat i docker compose
+## 🛠️ Guia bàsica d'instal·lació
 
-Un cop tenim un servidor preparat podem procedir amb el setup del ecosistema, per a fer-ho haurem d'usar el docker compose del que disposem al directori de setup, un cop tenim el compose dins d'un directori que haurem de crear, tambe haurem d'afegir el Dockerfile per a poder instal·lar el apache amb support de php sense cap problema.
+### Requisits previs
 
-Amb els arxius preparats, podem procedir a la posada en marxa dels containers per a lo que usarem la seguent comanda.
+- Un servidor amb **Docker** instal·lat
+- **Docker Compose** instal·lat
 
+---
+
+### 1. Preparar l'ecosistema amb Docker
+
+Col·loca el fitxer `docker-compose.yml` i el `Dockerfile` dins d'un directori i executa:
+
+```bash
 sudo docker compose up -d
+```
 
-Un cop tenim el servidor en complet funcionament, podem procedir amb la creació de la base de dades, per a fer aixo haurem d'usar un client amb el cual ens connectarem al servei phpmyadmin amb la seguent url
+> El `Dockerfile` és necessari per instal·lar Apache amb suport de PHP correctament.
 
-http://"ip del servidor":8080
+---
 
-Dins del phpmyadmin, al panell de login, per a iniciar sesio haurem de posar les seguents credencials:
+### 2. Crear la base de dades
 
-Database: db
-Username: admin
-Password: 1234
+Un cop el servidor estigui en funcionament, accedeix a **phpMyAdmin** amb la següent URL:
 
-Un cop dins del phpmyadmin, haurem de escollir a la part superior la pestanya de import, on haurem de impotar el dump de la base de dades anomenat iaw.sql que podem trobar al directori de setup.
+http://<ip_del_servidor>:8080
+Inicia sessió amb les credencials següents:
 
-Ara que ho tenim tot preparat, podem procedir a importar la aplicacio web al nostre servidor, per a fer aixo haurem d'accedir al directori on tenim el compose i crear un directori anomenat html, dins d'aquest podrem procedir a clonar el repositori de github, lo que fara que el apache agafe el codic desde aquest directori.
+| Camp      | Valor   |
+|-----------|---------|
+| Database  | `db`    |
+| Username  | `admin` |
+| Password  | `1234`  |
 
-En aixo ja tindria que estar tot en correcte funcionament.
+Un cop dins, ves a la pestanya **Import** i importa el dump de la base de dades: `iaw.sql`, que trobaràs al directori `setup/`.
+
+---
+
+### 3. Importar l'aplicació web
+
+Accedeix al directori on tens el compose, crea un directori anomenat `html` i clona el repositori dins seu:
+
+```bash
+mkdir html
+cd html
+git clone <url_del_repositori>
+```
+
+> Apache agafarà el codi automàticament des d'aquest directori.
+
+
+
+---
+
+✅ Amb això, l'aplicació hauria d'estar en complet funcionament.
