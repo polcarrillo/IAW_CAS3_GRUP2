@@ -8,6 +8,7 @@ La finalitat del apartat dels professors és poder fer una gestió general dels 
 
 ##Estructura del repositori
 
+'''
 📁 IAW_CAS3_GRUP2/
 ├── 📁 alumnat/
 │   └──  index.php
@@ -32,6 +33,7 @@ La finalitat del apartat dels professors és poder fer una gestió general dels 
 │   └── 🗄️ iaw.sql
 ├── 🐘 login.php
 └── 📄 README.md
+'''
 
 ---
 
