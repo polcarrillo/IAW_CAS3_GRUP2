@@ -1,14 +1,34 @@
 <?php
-// 1. INCLOURE FITXERS DEL POL I L'ABDU
+/**
+ * nou_maquinari.php
+ * Formulari per afegir nous dispositius al sistema.
+ */
+
+// 1. CARREGAR DEPENDÈNCIES (Fitxers del Pol i l'Abdu)
+require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 
-// Només els professors poden entrar aquí (seguretat del Pol)
-comprovarRol(ROL_PROFESSOR);
+// Iniciem la sessió per poder llegir qui és l'usuari
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-$db = getDB(); // Connectem a la base de dades estil PDO (estil Pol)
+// 2. SEGURETAT: Només professors
+// Si la funció del Pol existeix la usem, si no, fem un control manual ràpid
+if (function_exists('comprovarRol')) {
+    comprovarRol(ROL_PROFESSOR);
+} else {
+    if (!isset($_SESSION['rol']) || $_SESSION['rol'] !== 'professor') {
+        die("Error: No tens permisos de professor per veure aquesta pàgina.");
+    }
+}
 
-// 2. LÒGICA PER GUARDAR LES DADES
+// Connectem a la base de dades (Estil PDO del Pol)
+$db = getDB();
+
+// 3. LÒGICA DE GUARDAR (S'executa quan prems el botó)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom       = $_POST['nom'] ?? '';
     $tipus     = $_POST['tipus'] ?? '';
@@ -16,60 +36,73 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_aula   = $_POST['id_aula'] ?? '';
 
     try {
-        // Preparem la consulta per evitar atacs (SQL Injection)
-        $stmt = $db->prepare("INSERT INTO Material (nom, tipus, num_serie, id_aula) VALUES (?, ?, ?, ?)");
+        // Preparem la consulta per seguretat (evita que ens hackegin la BD)
+        $sql = "INSERT INTO Material (nom, tipus, num_serie, id_aula) VALUES (?, ?, ?, ?)";
+        $stmt = $db->prepare($sql);
         $stmt->execute([$nom, $tipus, $num_serie, $id_aula]);
         
-        // Si tot va bé, fem servir el sistema de missatges del Pol
-        setMissatge("Maquinari registrat correctament!", 'success');
-    } catch (Exception $e) {
-        setMissatge("Error al guardar: " . $e->getMessage(), 'error');
+        // Usem el sistema de missatges verds/vermells del Pol
+        if (function_exists('setMissatge')) {
+            setMissatge("S'ha guardat el material: $nom", 'success');
+        }
+    } catch (PDOException $e) {
+        if (function_exists('setMissatge')) {
+            setMissatge("Error de base de dades: " . $e->getMessage(), 'error');
+        }
     }
 }
 
-// 3. DIBUIXAR LA PÀGINA (HARMÒNIA VISUAL)
-capçalera('Afegir Nou Maquinari'); // Crida la capçalera del Pol
-mostrarMissatge(); // Mostra el globus de "Tot correcte" o "Error"
+// 4. DIBUIXAR LA PÀGINA
+// capçalera() posa el logo de l'Institut, el menú blau i el CSS
+capçalera('Registrar Nou Maquinari');
+
+// mostrarMissatge() treu el globus de text si s'ha guardat correctament
+if (function_exists('mostrarMissatge')) {
+    mostrarMissatge();
+}
 ?>
 
 <div class="card">
+    <p style="margin-bottom: 1rem; color: #666;">Omple les dades per afegir un nou equip a l'inventari del centre.</p>
+
     <form method="POST" action="nou_maquinari.php">
         
         <div class="form-group">
-            <label>Nom del dispositiu:</label>
-            <input type="text" name="nom" required placeholder="Ex: Portàtil HP ProBook">
+            <label for="nom">Nom del dispositiu</label>
+            <input type="text" id="nom" name="nom" required placeholder="Ex: Portàtil HP 250 G8">
         </div>
 
         <div class="form-group">
-            <label>Tipus de material:</label>
-            <select name="tipus" required>
-                <option value="">-- Selecciona un tipus --</option>
+            <label for="tipus">Tipus de maquinari</label>
+            <select id="tipus" name="tipus" required>
+                <option value="">-- Selecciona --</option>
                 <option value="Portàtil">Portàtil</option>
                 <option value="Sobretaula">Sobretaula</option>
                 <option value="Projector">Projector</option>
                 <option value="Monitor">Monitor</option>
-                <option value="Altres">Altres</option>
+                <option value="Tauleta">Tauleta</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label>Número de Sèrie:</label>
-            <input type="text" name="num_serie" required placeholder="Ex: SN123456789">
+            <label for="num_serie">Número de Sèrie</label>
+            <input type="text" id="num_serie" name="num_serie" required placeholder="SN-XXXXXXX">
         </div>
 
         <div class="form-group">
-            <label>ID de l'Aula:</label>
-            <input type="number" name="id_aula" required placeholder="Ex: 1">
+            <label for="id_aula">ID Aula (Destí)</label>
+            <input type="number" id="id_aula" name="id_aula" required placeholder="Ex: 1">
         </div>
 
-        <div style="margin-top: 1.5rem;">
-            <button type="submit" class="btn btn-primary">Guardar Maquinari</button>
-            <a href="index.php" class="btn btn-danger" style="background:#999;">Cancel·lar</a>
+        <div style="margin-top: 1.5rem; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary">Guardar a l'Inventari</button>
+            <a href="index.php" class="btn" style="background: #e0e0e0; color: #333;">Tornar</a>
         </div>
 
     </form>
 </div>
 
 <?php
-peu(); // Crida el peu de pàgina del Pol
+// peu() tanca el main i posa el copyright del curs
+peu();
 ?>
