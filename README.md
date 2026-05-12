@@ -20,6 +20,10 @@ La finalitat del apartat dels professors és poder fer una gestió general dels 
 │   ├──  db.php
 │   ├──  index.php
 │   ├──  layout.php
+│   ├──  nou_alumne.php
+│   ├──  nou_maquinari.php
+│   ├──  gestionar_alumne.php
+│   ├──  gestionar_maquinari.php
 │   └──  logout.php
 ├── 📁 professorat/ - Directori on es troben les pagines de professors
 │   ├──  alumne_dispositius.php
