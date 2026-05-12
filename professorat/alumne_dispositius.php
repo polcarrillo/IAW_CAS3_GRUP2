@@ -24,13 +24,16 @@ if ($cerca !== '') {
     $stmt = $db->prepare(
         "SELECT id, nom, cognom1, cognom2, correu, grupClasse
          FROM Alumnes
-         WHERE nom LIKE :cerca OR cognom1 LIKE :cerca OR cognom2 LIKE :cerca OR grupClasse LIKE :cerca
+        WHERE nom LIKE :cerca1 OR cognom1 LIKE :cerca2 OR cognom2 LIKE :cerca3 OR grupClasse LIKE :cerca4
          ORDER BY cognom1, nom
          LIMIT 50"
     );
-    $stmt->execute([':cerca' => '%' . $cerca . '%']);
-    $alumnes = $stmt->fetchAll();
-}
+    $stmt->execute([
+     ':cerca1' => '%' . $cerca . '%',
+     ':cerca2' => '%' . $cerca . '%',
+     ':cerca3' => '%' . $cerca . '%',
+     ':cerca4' => '%' . $cerca . '%',
+    ]);
 
 // Si s'ha seleccionat un alumne, carrega els seus dispositius
 if ($idAlumne > 0) {
