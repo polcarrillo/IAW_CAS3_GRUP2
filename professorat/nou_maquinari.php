@@ -1,30 +1,30 @@
 k<?php
 // 1. CARREGAR EL SISTEMA
-// Fitxers necessaris per a que la web funcioni i tingui disseny
+// Fitxers del projecte per a que tot funcioni correctament
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 
-// Iniciem la sessió de l'usuari
+// Iniciem la sessio de l'usuari si no ho esta
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 // 2. SEGURETAT
-// Només els professors poden entrar aquí
+// Verifiquem que qui entra es un professor
 if (function_exists('comprovarRol')) {
     comprovarRol(ROL_PROFESSOR);
 }
 
-// Connectem a la base de dades iaw
+// Connectem a la base de dades
 $db = getDB();
 
 // 3. RECOLLIR DADES I GUARDAR
-// Si l'usuari clica el botó, processem el formulari
+// Si l'usuari envia el formulari, guardem la info
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // Agafem el que s'ha escrit a cada casella
+    // Agafem les dades netejant espais buits
     $etiqueta = isset($_POST['etiqueta']) ? trim($_POST['etiqueta']) : '';
     $numSerie = isset($_POST['numSerie']) ? trim($_POST['numSerie']) : '';
     $macEth   = isset($_POST['macEthernet']) ? trim($_POST['macEthernet']) : '';
@@ -32,26 +32,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $sace     = isset($_POST['sace']) ? trim($_POST['sace']) : '';
     $dataAdq  = isset($_POST['dataAdquisicio']) ? $_POST['dataAdquisicio'] : null;
     
-    // IDs fixos (els que hem creat abans al phpMyAdmin)
+    // IDs de prova (creats manualment al phpMyAdmin)
     $idTipus = 1; 
     $idUbicacio = 1;
 
     try {
-        // Ordre per a insertar la informació a la taula Material
+        // Ordre SQL per insertar a la taula Material
         $sql = "INSERT INTO Material (idTipus, etiquetaDepInf, numSerie, macEthernet, macWifi, SACE, dataAdquisicio, idUbicacio) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         $stmt = $db->prepare($sql);
         
-        // Enviem les dades en ordre
+        // Enviem les dades en l'ordre de la taula
         $stmt->execute([$idTipus, $etiqueta, $numSerie, $macEth, $macWifi, $sace, $dataAdq, $idUbicacio]);
         
         setMissatge("Equip guardat correctament a la base de dades", 'success');
     } catch (PDOException $e) {
-        setMissatge("Error: " . $e->getMessage(), 'error');
+        setMissatge("Error al guardar: " . $e->getMessage(), 'error');
     }
 }
 
-// 4. DISSENY DE LA PÀGINA
+// 4. DISSENY DE LA PAGINA
+// Fem servir la capçalera
 capçalera('Afegir Nou Maquinari');
 mostrarMissatge();
 ?>
@@ -98,6 +99,6 @@ mostrarMissatge();
 </div>
 
 <?php 
-// Peu de pàgina final
+// Peu de pagina del projecte
 peu(); 
 ?>
