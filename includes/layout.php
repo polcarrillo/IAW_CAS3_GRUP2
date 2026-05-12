@@ -6,7 +6,7 @@
  * @package GestioMaterial
  */
 
-require_once __DIR__ . 'auth.php';
+require_once __DIR__ . '/auth.php';
 
 /**
  * Genera la capçalera HTML de la pàgina.
