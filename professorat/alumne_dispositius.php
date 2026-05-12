@@ -34,6 +34,8 @@ if ($cerca !== '') {
      ':cerca3' => '%' . $cerca . '%',
      ':cerca4' => '%' . $cerca . '%',
     ]);
+    $alumnes = $stmt->fetchAll();  
+}
 
 // Si s'ha seleccionat un alumne, carrega els seus dispositius
 if ($idAlumne > 0) {
