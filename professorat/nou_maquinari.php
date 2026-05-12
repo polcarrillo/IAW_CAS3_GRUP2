@@ -1,57 +1,75 @@
 <?php
-// 1. Incloure la connexió i l'autenticació
-include_once("../includes/db.php");
-include_once("../includes/auth.php"); // Per assegurar que només entren profes
-include_once("../includes/layout.php"); // Per mantenir l'estètica del Pol
+// 1. INCLOURE FITXERS DEL POL I L'ABDU
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/layout.php';
 
-// 2. Lògica d'inserció quan enviem el formulari
-$missatge = "";
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nom = $_POST['nom'];
-    $tipus = $_POST['tipus'];
-    $num_serie = $_POST['num_serie'];
-    $id_aula = $_POST['id_aula'];
+// Només els professors poden entrar aquí (seguretat del Pol)
+comprovarRol(ROL_PROFESSOR);
 
-    $sql = "INSERT INTO Material (nom, tipus, num_serie, id_aula) VALUES ('$nom', '$tipus', '$num_serie', '$id_aula')";
-    
-    if (mysqli_query($conn, $sql)) {
-        $missatge = "<div class='alert alert-success'>Maquinari registrat correctament!</div>";
-    } else {
-        $missatge = "<div class='alert alert-danger'>Error: " . mysqli_error($conn) . "</div>";
+$db = getDB(); // Connectem a la base de dades estil PDO (estil Pol)
+
+// 2. LÒGICA PER GUARDAR LES DADES
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $nom       = $_POST['nom'] ?? '';
+    $tipus     = $_POST['tipus'] ?? '';
+    $num_serie = $_POST['num_serie'] ?? '';
+    $id_aula   = $_POST['id_aula'] ?? '';
+
+    try {
+        // Preparem la consulta per evitar atacs (SQL Injection)
+        $stmt = $db->prepare("INSERT INTO Material (nom, tipus, num_serie, id_aula) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$nom, $tipus, $num_serie, $id_aula]);
+        
+        // Si tot va bé, fem servir el sistema de missatges del Pol
+        setMissatge("Maquinari registrat correctament!", 'success');
+    } catch (Exception $e) {
+        setMissatge("Error al guardar: " . $e->getMessage(), 'error');
     }
 }
 
-// 3. Mostrar la capçalera (definida al layout.php del Pol)
-mostrar_header("Afegir Nou Maquinari");
+// 3. DIBUIXAR LA PÀGINA (HARMÒNIA VISUAL)
+capçalera('Afegir Nou Maquinari'); // Crida la capçalera del Pol
+mostrarMissatge(); // Mostra el globus de "Tot correcte" o "Error"
 ?>
 
-<div class="container">
-    <h2>Registrar Nou Maquinari</h2>
-    <?php echo $missatge; ?>
+<div class="card">
+    <form method="POST" action="nou_maquinari.php">
+        
+        <div class="form-group">
+            <label>Nom del dispositiu:</label>
+            <input type="text" name="nom" required placeholder="Ex: Portàtil HP ProBook">
+        </div>
 
-    <form method="POST" action="nou_maquinari.php" class="form-style">
-        <label>Nom del dispositiu:</label>
-        <input type="text" name="nom" required placeholder="Ex: Portàtil HP">
+        <div class="form-group">
+            <label>Tipus de material:</label>
+            <select name="tipus" required>
+                <option value="">-- Selecciona un tipus --</option>
+                <option value="Portàtil">Portàtil</option>
+                <option value="Sobretaula">Sobretaula</option>
+                <option value="Projector">Projector</option>
+                <option value="Monitor">Monitor</option>
+                <option value="Altres">Altres</option>
+            </select>
+        </div>
 
-        <label>Tipus:</label>
-        <select name="tipus">
-            <option value="Portàtil">Portàtil</option>
-            <option value="Sobretaula">Sobretaula</option>
-            <option value="Projector">Projector</option>
-            <option value="Altres">Altres</option>
-        </select>
+        <div class="form-group">
+            <label>Número de Sèrie:</label>
+            <input type="text" name="num_serie" required placeholder="Ex: SN123456789">
+        </div>
 
-        <label>Número de Sèrie:</label>
-        <input type="text" name="num_serie" required>
+        <div class="form-group">
+            <label>ID de l'Aula:</label>
+            <input type="number" name="id_aula" required placeholder="Ex: 1">
+        </div>
 
-        <label>Aula (ID):</label>
-        <input type="number" name="id_aula" required>
+        <div style="margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary">Guardar Maquinari</button>
+            <a href="index.php" class="btn btn-danger" style="background:#999;">Cancel·lar</a>
+        </div>
 
-        <button type="submit" class="btn-save">Guardar Maquinari</button>
     </form>
 </div>
 
 <?php
-// 4. Mostrar el peu de pàgina
-mostrar_footer();
+peu(); // Crida el peu de pàgina del Pol
 ?>
