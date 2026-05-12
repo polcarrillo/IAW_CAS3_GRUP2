@@ -30,6 +30,7 @@ function obtenirDispositiusAssignats(PDO $db, int $idTipus): array {
     $where = $idTipus > 0 ? 'WHERE m.idTipus = :idTipus' : '';
     $sql = "
         SELECT
+            m.id AS idMaterial,
             tm.tipus,
             tm.model,
             m.idInventari,
@@ -105,7 +106,7 @@ capçalera('Dispositius per Tipus i Assignació');
                 <td><?= h($d['aula'] ?? '—') ?></td>
                 <td>
                     <?php if ($d['alumne'] && $d['idAlumne']): ?>
-                        <a href="gestionar_dispositiu.php?id=<?= h($d['idInventari']) ?>">
+                        <a href="gestionar_dispositiu.php?id=<?= (int)$d['idMaterial'] ?>">
                             <?= h(trim($d['alumne'])) ?>
                         </a>
                     <?php else: ?>
@@ -115,7 +116,7 @@ capçalera('Dispositius per Tipus i Assignació');
                 <td><?= h($d['grupClasse'] ?? '—') ?></td>
                 <td><?= $d['dataInici'] ? h($d['dataInici']) : '—' ?></td>
                 <td>
-                    <a class="btn btn-sm btn-primary" href="gestionar_dispositiu.php?id=<?= h($d['idInventari']) ?>">Gestionar</a>
+                    <a class="btn btn-sm btn-primary" href="gestionar_dispositiu.php?id=<?= (int)$d['idMaterial'] ?>">Gestionar</a>
                 </td>
             </tr>
         <?php endforeach; ?>
