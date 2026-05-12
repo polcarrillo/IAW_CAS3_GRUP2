@@ -1,18 +1,16 @@
 <?php
-// 1. CARREGAR FITXERS EXTERNS
-// Incloem la configuració, la base de dades, la seguretat i el disseny
+// Carreguem els fitxers de configuració i disseny
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 
-// Iniciem la sessió per saber qui és l'usuari
+// Iniciem la sessió
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 2. SEGURETAT
-// Verifiquem que l'usuari sigui un professor
+// Verifiquem que l'usuari sigui professor
 if (function_exists('comprovarRol')) {
     comprovarRol(ROL_PROFESSOR);
 }
@@ -20,59 +18,39 @@ if (function_exists('comprovarRol')) {
 // Connectem a la base de dades
 $db = getDB();
 
-// 3. RECULLIR DADES DEL FORMULARI
-// Aquest codi s'executa quan l'usuari clica el botó de guardar
+// Si l'usuari envia el formulari
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $etiqueta   = $_POST['etiqueta'] ?? '';
-    $idTipus    = $_POST['idTipus'] ?? '';
-    $numSerie   = $_POST['numSerie'] ?? '';
-    $idUbicacio = $_POST['idUbicacio'] ?? '';
+    $etiqueta = $_POST['etiqueta'] ?? '';
+    $numSerie = $_POST['numSerie'] ?? '';
+    
+    // Fem servir els IDs que acabem de crear manualment
+    $idTipus = 1; 
+    $idUbicacio = 1;
 
     try {
-        // Preparem l'ordre per insertar les dades a la taula Material
-        // No enviem l'ID perquè la base de dades el posarà sol (Auto-increment)
+        // Inserim les dades a la taula Material
         $sql = "INSERT INTO Material (idTipus, etiquetaDepInf, numSerie, idUbicacio) 
                 VALUES (?, ?, ?, ?)";
         $stmt = $db->prepare($sql);
         $stmt->execute([$idTipus, $etiqueta, $numSerie, $idUbicacio]);
         
-        // Missatge de confirmació
-        if (function_exists('setMissatge')) {
-            setMissatge("Maquinari registrat correctament: $etiqueta", 'success');
-        }
+        setMissatge("Dades guardades correctament", 'success');
     } catch (PDOException $e) {
-        // Missatge si hi ha un error
-        if (function_exists('setMissatge')) {
-            setMissatge("Error al guardar les dades: " . $e->getMessage(), 'error');
-        }
+        setMissatge("Error al guardar: " . $e->getMessage(), 'error');
     }
 }
 
-// 4. MOSTRAR LA PÀGINA (DISSENY)
-// Fem servir les funcions del Pol per la capçalera i el peu
+// Dibuixem la capçalera de la pàgina
 capçalera('Afegir Nou Maquinari');
-
-// Mostrem el missatge d'èxit o error si n'hi ha un
-if (function_exists('mostrarMissatge')) {
-    mostrarMissatge();
-}
+mostrarMissatge();
 ?>
 
 <div class="card">
     <form method="POST" action="nou_maquinari.php">
         
         <div class="form-group">
-            <label>Model o Etiqueta:</label>
+            <label>Nom o Etiqueta del material:</label>
             <input type="text" name="etiqueta" required>
-        </div>
-
-        <div class="form-group">
-            <label>Tipus de Material:</label>
-            <select name="idTipus" required>
-                <option value="1">Portatil</option>
-                <option value="2">Sobretaula</option>
-                <option value="3">Projector</option>
-            </select>
         </div>
 
         <div class="form-group">
@@ -80,20 +58,15 @@ if (function_exists('mostrarMissatge')) {
             <input type="text" name="numSerie" required>
         </div>
 
-        <div class="form-group">
-            <label>ID de l'Aula (Ubicacio):</label>
-            <input type="number" name="idUbicacio" required>
-        </div>
-
         <div style="margin-top: 20px;">
-            <button type="submit" class="btn btn-primary">Guardar Maquinari</button>
-            <a href="index.php" class="btn" style="background:#ccc; color:black; text-decoration:none;">Tornar</a>
+            <button type="submit" class="btn btn-primary">Guardar a la Base de Dades</button>
+            <a href="index.php" class="btn" style="background:#ccc; color:black; text-decoration:none; padding:8px; border-radius:4px;">Tornar</a>
         </div>
 
     </form>
 </div>
 
 <?php 
-// Tancem el disseny de la pàgina
+// Dibuixem el peu de pàgina
 peu(); 
 ?>
