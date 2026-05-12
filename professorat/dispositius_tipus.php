@@ -105,7 +105,7 @@ capçalera('Dispositius per Tipus i Assignació');
                 <td><?= h($d['aula'] ?? '—') ?></td>
                 <td>
                     <?php if ($d['alumne'] && $d['idAlumne']): ?>
-                        <a href="gestionar_alumne.php?id=<?= (int)$d['idAlumne'] ?>">
+                        <a href="gestionar_dispositiu.php?id=<?= h($d['idInventari']) ?>">
                             <?= h(trim($d['alumne'])) ?>
                         </a>
                     <?php else: ?>
@@ -115,9 +115,7 @@ capçalera('Dispositius per Tipus i Assignació');
                 <td><?= h($d['grupClasse'] ?? '—') ?></td>
                 <td><?= $d['dataInici'] ? h($d['dataInici']) : '—' ?></td>
                 <td>
-                    <?php if ($d['idAlumne']): ?>
-                        <a class="btn btn-sm btn-primary" href="gestionar_alumne.php?id=<?= (int)$d['idAlumne'] ?>">Gestionar</a>
-                    <?php endif; ?>
+                    <a class="btn btn-sm btn-primary" href="gestionar_dispositiu.php?id=<?= h($d['idInventari']) ?>">Gestionar</a>
                 </td>
             </tr>
         <?php endforeach; ?>
