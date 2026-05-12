@@ -1,75 +1,99 @@
 <?php
+// 1. CARREGAR FITXERS EXTERNS
+// Incloem la configuració, la base de dades, la seguretat i el disseny
 require_once __DIR__ . '/../includes/config.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/layout.php';
 
+// Iniciem la sessió per saber qui és l'usuari
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// 2. SEGURETAT
+// Verifiquem que l'usuari sigui un professor
 if (function_exists('comprovarRol')) {
     comprovarRol(ROL_PROFESSOR);
 }
 
+// Connectem a la base de dades
 $db = getDB();
 
+// 3. RECULLIR DADES DEL FORMULARI
+// Aquest codi s'executa quan l'usuari clica el botó de guardar
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Adaptem els noms de les variables al que demana la teva BD
     $etiqueta   = $_POST['etiqueta'] ?? '';
     $idTipus    = $_POST['idTipus'] ?? '';
     $numSerie   = $_POST['numSerie'] ?? '';
     $idUbicacio = $_POST['idUbicacio'] ?? '';
 
     try {
-        // LA SQL AMB ELS NOMS REALS DE LA TEVA CAPTURA
-        $sql = "INSERT INTO Material (idTipus, etiquetaDepInf, numSerie, idUbicacio) VALUES (?, ?, ?, ?)";
+        // Preparem l'ordre per insertar les dades a la taula Material
+        // No enviem l'ID perquè la base de dades el posarà sol (Auto-increment)
+        $sql = "INSERT INTO Material (idTipus, etiquetaDepInf, numSerie, idUbicacio) 
+                VALUES (?, ?, ?, ?)";
         $stmt = $db->prepare($sql);
         $stmt->execute([$idTipus, $etiqueta, $numSerie, $idUbicacio]);
         
-        setMissatge("Maquinari registrat: $etiqueta", 'success');
+        // Missatge de confirmació
+        if (function_exists('setMissatge')) {
+            setMissatge("Maquinari registrat correctament: $etiqueta", 'success');
+        }
     } catch (PDOException $e) {
-        setMissatge("Error de base de dades: " . $e->getMessage(), 'error');
+        // Missatge si hi ha un error
+        if (function_exists('setMissatge')) {
+            setMissatge("Error al guardar les dades: " . $e->getMessage(), 'error');
+        }
     }
 }
 
-capçalera('Registrar Nou Maquinari');
-mostrarMissatge();
+// 4. MOSTRAR LA PÀGINA (DISSENY)
+// Fem servir les funcions del Pol per la capçalera i el peu
+capçalera('Afegir Nou Maquinari');
+
+// Mostrem el missatge d'èxit o error si n'hi ha un
+if (function_exists('mostrarMissatge')) {
+    mostrarMissatge();
+}
 ?>
 
 <div class="card">
     <form method="POST" action="nou_maquinari.php">
         
         <div class="form-group">
-            <label>Etiqueta Departament (Nom):</label>
-            <input type="text" name="etiqueta" required placeholder="Ex: PC-SISTEMES-01">
+            <label>Model o Etiqueta:</label>
+            <input type="text" name="etiqueta" required>
         </div>
 
         <div class="form-group">
             <label>Tipus de Material:</label>
             <select name="idTipus" required>
-                <option value="1">Portàtil</option>
+                <option value="1">Portatil</option>
                 <option value="2">Sobretaula</option>
                 <option value="3">Projector</option>
             </select>
         </div>
 
         <div class="form-group">
-            <label>Número de Sèrie:</label>
-            <input type="text" name="numSerie" required placeholder="Ex: SN12345">
+            <label>Numero de Serie:</label>
+            <input type="text" name="numSerie" required>
         </div>
 
         <div class="form-group">
-            <label>ID Ubicació (Aula):</label>
-            <input type="number" name="idUbicacio" required placeholder="Ex: 1">
+            <label>ID de l'Aula (Ubicacio):</label>
+            <input type="number" name="idUbicacio" required>
         </div>
 
-        <div style="margin-top: 1.5rem;">
-            <button type="submit" class="btn btn-primary">Guardar a la Base de Dades</button>
-            <a href="index.php" class="btn" style="background:#ccc; color:black;">Tornar</a>
+        <div style="margin-top: 20px;">
+            <button type="submit" class="btn btn-primary">Guardar Maquinari</button>
+            <a href="index.php" class="btn" style="background:#ccc; color:black; text-decoration:none;">Tornar</a>
         </div>
 
     </form>
 </div>
 
-<?php peu(); ?>
+<?php 
+// Tancem el disseny de la pàgina
+peu(); 
+?>
