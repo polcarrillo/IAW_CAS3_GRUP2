@@ -223,7 +223,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             setMissatge("Historial d'incidències tancades eliminat correctament.", 'success');
         } catch (PDOException $e) {
             error_log($e->getMessage());
-            setMissatge('Error en eliminar l'historial.', 'error');
+            setMissatge("Error en eliminar l'historial.", 'error');
         }
         header("Location: gestionar_dispositiu.php?id={$idMaterial}");
         exit;
