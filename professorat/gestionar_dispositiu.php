@@ -166,10 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ── 4. Nova incidència ───────────────────────────────────────────────────
     if ($accio === 'nova_incidencia') {
-        $informacio  = trim($_POST['informacio'] ?? '');
-        $idEstat     = (int)($_POST['idEstat'] ?? 0);
-        $dataOberta  = $_POST['dataOberta'] ?: date('Y-m-d');
-        $dataTancada = $_POST['dataTancada'] ?: null;
+        $informacio = trim($_POST['informacio'] ?? '');
+        $idEstat    = (int)($_POST['idEstat'] ?? 0);
 
         // Alumne: preferència a l'assignació activa; si no, el seleccionat manualment
         if ($assignacioActiva) {
@@ -185,9 +183,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 $db->prepare(
-                    "INSERT INTO Incidencies (informacio, dataOberta, dataTancada, idAlumne, idDispositiu, idEstat)
-                     VALUES (?, ?, ?, ?, ?, ?)"
-                )->execute([$informacio, $dataOberta, $dataTancada, $idAlumneInc, $idMaterial, $idEstat]);
+                    "INSERT INTO Incidencies (informacio, dataOberta, idAlumne, idDispositiu, idEstat)
+                     VALUES (?, CURDATE(), ?, ?, ?)"
+                )->execute([$informacio, $idAlumneInc, $idMaterial, $idEstat]);
                 setMissatge('Incidència registrada correctament.', 'success');
             } catch (PDOException $e) {
                 error_log($e->getMessage());
@@ -448,18 +446,6 @@ mostrarMissatge();
                             <option value="<?= (int)$e['id'] ?>"><?= h($e['estat']) ?></option>
                         <?php endforeach; ?>
                     </select>
-                </div>
-
-                <!-- dataOberta (DATE) -->
-                <div class="form-group">
-                    <label>Data d'obertura</label>
-                    <input type="date" name="dataOberta" value="<?= date('Y-m-d') ?>">
-                </div>
-
-                <!-- dataTancada (DATE, nullable) -->
-                <div class="form-group">
-                    <label>Data de tancament <span style="font-size:0.8rem;color:#999;">(opcional)</span></label>
-                    <input type="date" name="dataTancada">
                 </div>
 
                 <!-- idAlumne (FK → Alumnes, nullable) -->
