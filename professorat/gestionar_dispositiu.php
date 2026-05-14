@@ -125,7 +125,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // ── 2. Assignar a un alumne ──────────────────────────────────────────────
     if ($accio === 'assignar') {
         $idAlumne  = (int)($_POST['idAlumne'] ?? 0);
-        $dataInici = $_POST['dataInici'] ?: date('Y-m-d');
 
         if ($idAlumne <= 0) {
             setMissatge('Has de seleccionar un alumne.', 'error');
@@ -134,8 +133,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             try {
                 $db->prepare(
-                    "INSERT INTO Assignacions (idMaterial, idAlumne, dataInici) VALUES (?, ?, ?)"
-                )->execute([$idMaterial, $idAlumne, $dataInici]);
+                    "INSERT INTO Assignacions (idMaterial, idAlumne, dataInici) VALUES (?, ?, CURDATE())"
+                )->execute([$idMaterial, $idAlumne]);
                 setMissatge('Dispositiu assignat correctament.', 'success');
             } catch (PDOException $e) {
                 error_log($e->getMessage());
@@ -417,11 +416,7 @@ mostrarMissatge();
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Data d'inici</label>
-                        <input type="date" name="dataInici" value="<?= date('Y-m-d') ?>">
-                    </div>
-                    <button type="submit" class="btn btn-success" style="width:100%;">
+<button type="submit" class="btn btn-success" style="width:100%;">
                         Assignar dispositiu
                     </button>
                 </form>
@@ -501,7 +496,7 @@ mostrarMissatge();
                         <input type="hidden" name="accio" value="borrar_historial">
                         <button type="submit" class="btn btn-sm btn-danger"
                             style="font-size:0.78rem;padding:3px 10px;">
-                            Borrar historial
+                            🗑 Borrar historial
                         </button>
                     </form>
                 <?php endif; ?>
