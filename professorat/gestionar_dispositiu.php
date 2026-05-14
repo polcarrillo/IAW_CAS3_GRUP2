@@ -501,7 +501,7 @@ mostrarMissatge();
                         <input type="hidden" name="accio" value="borrar_historial">
                         <button type="submit" class="btn btn-sm btn-danger"
                             style="font-size:0.78rem;padding:3px 10px;">
-                            🗑 Borrar historial
+                            Borrar historial
                         </button>
                     </form>
                 <?php endif; ?>
