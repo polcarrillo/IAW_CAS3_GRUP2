@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $db->prepare(
                 "DELETE FROM Incidencies WHERE idDispositiu = ? AND dataTancada IS NOT NULL"
             )->execute([$idMaterial]);
-            setMissatge('Historial d'incidències tancades eliminat correctament.', 'success');
+            setMissatge("Historial d'incidències tancades eliminat correctament.", 'success');
         } catch (PDOException $e) {
             error_log($e->getMessage());
             setMissatge('Error en eliminar l'historial.', 'error');
@@ -501,11 +501,11 @@ mostrarMissatge();
                 <?php
                 $incTancades = array_filter($incidencies, fn($i) => $i['dataTancada'] !== null);
                 if (!empty($incTancades)): ?>
-                    <form method="POST" onsubmit="return confirm('Eliminar totes les incidències tancades d\'aquest dispositiu? Aquesta acció no es pot desfer.');">
+                    <form method="POST" onsubmit="return confirm('Eliminar les incidencies tancades? Aquesta accio no es pot desfer.');">
                         <input type="hidden" name="accio" value="borrar_historial">
                         <button type="submit" class="btn btn-sm btn-danger"
                             style="font-size:0.78rem;padding:3px 10px;">
-                            Borrar historial
+                            🗑 Borrar historial
                         </button>
                     </form>
                 <?php endif; ?>
