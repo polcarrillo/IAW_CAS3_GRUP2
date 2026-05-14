@@ -42,6 +42,7 @@ function obtenirIncidenciesObertes(PDO $db): array {
             inc.id,
             inc.informacio,
             inc.dataOberta,
+            inc.idDispositiu,
             e.estat,
             m.idInventari,
             m.numSerie,
@@ -104,7 +105,9 @@ mostrarMissatge();
                 <td><span class="badge-estat badge-inc"><?= h($inc['estat'] ?? 'Sense estat') ?></span></td>
                 <td><?= h($inc['dataOberta']) ?></td>
                 <td style="max-width:250px; font-size:0.83rem;"><?= h(mb_substr($inc['informacio'], 0, 100)) ?>...</td>
-                <td>
+                <td style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+                    <a href="gestionar_dispositiu.php?id=<?= (int)$inc['idDispositiu'] ?>"
+                       class="btn btn-sm btn-primary">Gestionar</a>
                     <form method="POST" onsubmit="return confirm('Tancar aquesta incidència?');">
                         <input type="hidden" name="tancar_id" value="<?= (int)$inc['id'] ?>">
                         <button type="submit" class="btn btn-sm btn-success">Tancar</button>
