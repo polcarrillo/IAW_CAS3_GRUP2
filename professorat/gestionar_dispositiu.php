@@ -92,13 +92,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $dataAdquisicio = $_POST['dataAdquisicio'] ?: null;
 
         if ($idTipus <= 0 || empty($idInventari)) {
-            setMissatge('Tipus i número d\'inventari són obligatoris.', 'error');
+            setMissatge("Tipus i numero d'inventari son obligatoris.", 'error');
         } else {
             // Comprova inventari duplicat (excloent el mateix dispositiu)
             $stmtChk = $db->prepare("SELECT id FROM Material WHERE idInventari = ? AND id != ?");
             $stmtChk->execute([$idInventari, $idMaterial]);
             if ($stmtChk->fetch()) {
-                setMissatge("Ja existeix un altre dispositiu amb l'inventari «{$idInventari}».", 'error');
+                setMissatge("Ja existeix un altre dispositiu amb l'inventari: " . $idInventari . ".", 'error');
             } else {
                 try {
                     $db->prepare(
