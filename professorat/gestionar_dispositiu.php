@@ -166,18 +166,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ── 4. Nova incidència ───────────────────────────────────────────────────
     if ($accio === 'nova_incidencia') {
-        $descripcio = trim($_POST['descripcio'] ?? '');
-        $idEstat    = (int)($_POST['idEstat'] ?? 1);
-        $idAlumneInc = $assignacioActiva ? (int)$assignacioActiva['idAlumne'] : null;
+        $informacio  = trim($_POST['informacio'] ?? '');
+        $idEstat     = (int)($_POST['idEstat'] ?? 0);
+        $dataOberta  = $_POST['dataOberta'] ?: date('Y-m-d');
+        $dataTancada = $_POST['dataTancada'] ?: null;
 
-        if (empty($descripcio)) {
+        // Alumne: preferència a l'assignació activa; si no, el seleccionat manualment
+        if ($assignacioActiva) {
+            $idAlumneInc = (int)$assignacioActiva['idAlumne'];
+        } else {
+            $idAlumneInc = ($_POST['idAlumne'] ?? '') !== '' ? (int)$_POST['idAlumne'] : null;
+        }
+
+        if (empty($informacio)) {
             setMissatge('La descripció de la incidència és obligatòria.', 'error');
+        } elseif ($idEstat <= 0) {
+            setMissatge('Has de seleccionar un estat per a la incidència.', 'error');
         } else {
             try {
                 $db->prepare(
-                    "INSERT INTO Incidencies (informacio, dataOberta, idAlumne, idDispositiu, idEstat)
-                     VALUES (?, CURDATE(), ?, ?, ?)"
-                )->execute([$descripcio, $idAlumneInc, $idMaterial, $idEstat]);
+                    "INSERT INTO Incidencies (informacio, dataOberta, dataTancada, idAlumne, idDispositiu, idEstat)
+                     VALUES (?, ?, ?, ?, ?, ?)"
+                )->execute([$informacio, $dataOberta, $dataTancada, $idAlumneInc, $idMaterial, $idEstat]);
                 setMissatge('Incidència registrada correctament.', 'success');
             } catch (PDOException $e) {
                 error_log($e->getMessage());
@@ -421,24 +431,57 @@ mostrarMissatge();
             </h3>
             <form method="POST">
                 <input type="hidden" name="accio" value="nova_incidencia">
+
+                <!-- informacio (VARCHAR 5000) -->
                 <div class="form-group">
-                    <label>Estat / Tipus d'incidència</label>
+                    <label>Descripció <span style="color:#e74c3c;">*</span></label>
+                    <textarea name="informacio" rows="4" required maxlength="5000"
+                        placeholder="Descriu la incidència detalladament..."></textarea>
+                </div>
+
+                <!-- idEstat (FK → Estats) -->
+                <div class="form-group">
+                    <label>Estat <span style="color:#e74c3c;">*</span></label>
                     <select name="idEstat" required>
+                        <option value="">Selecciona un estat...</option>
                         <?php foreach ($estats as $e): ?>
                             <option value="<?= (int)$e['id'] ?>"><?= h($e['estat']) ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
+
+                <!-- dataOberta (DATE) -->
                 <div class="form-group">
-                    <label>Descripció</label>
-                    <textarea name="descripcio" rows="4" required maxlength="5000"
-                        placeholder="Descriu la incidència detalladament..."></textarea>
+                    <label>Data d'obertura</label>
+                    <input type="date" name="dataOberta" value="<?= date('Y-m-d') ?>">
                 </div>
+
+                <!-- dataTancada (DATE, nullable) -->
+                <div class="form-group">
+                    <label>Data de tancament <span style="font-size:0.8rem;color:#999;">(opcional)</span></label>
+                    <input type="date" name="dataTancada">
+                </div>
+
+                <!-- idAlumne (FK → Alumnes, nullable) -->
                 <?php if ($assignacioActiva): ?>
                     <p style="font-size:0.82rem;color:#888;margin-bottom:0.8rem;">
-                        S'associara a: <strong><?= h(trim($assignacioActiva['nomAlumne'])) ?></strong>
+                        S'associarà a: <strong><?= h(trim($assignacioActiva['nomAlumne'])) ?></strong>
                     </p>
+                <?php else: ?>
+                    <div class="form-group">
+                        <label>Alumne relacionat <span style="font-size:0.8rem;color:#999;">(opcional)</span></label>
+                        <select name="idAlumne">
+                            <option value="">Cap alumne associat</option>
+                            <?php foreach ($alumnes as $a): ?>
+                                <option value="<?= (int)$a['id'] ?>">
+                                    <?= h(trim($a['nomComplet'])) ?>
+                                    <?= $a['grupClasse'] ? '(' . h($a['grupClasse']) . ')' : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
                 <?php endif; ?>
+
                 <button type="submit" class="btn btn-danger" style="width:100%;">
                     Registrar incidència
                 </button>
