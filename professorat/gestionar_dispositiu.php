@@ -213,6 +213,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: gestionar_dispositiu.php?id={$idMaterial}");
         exit;
     }
+
+    // ── 6. Borrar historial (incidències tancades) ───────────────────────────
+    if ($accio === 'borrar_historial') {
+        try {
+            $db->prepare(
+                "DELETE FROM Incidencies WHERE idDispositiu = ? AND dataTancada IS NOT NULL"
+            )->execute([$idMaterial]);
+            setMissatge('Historial d'incidències tancades eliminat correctament.', 'success');
+        } catch (PDOException $e) {
+            error_log($e->getMessage());
+            setMissatge('Error en eliminar l'historial.', 'error');
+        }
+        header("Location: gestionar_dispositiu.php?id={$idMaterial}");
+        exit;
+    }
 }
 
 // ── Recarrega el dispositiu per si s'ha editat ──────────────────────────────
@@ -476,12 +491,25 @@ mostrarMissatge();
 
         <!-- Llista d'incidències -->
         <div class="card">
-            <h3 style="color:#1a4f8a;margin-bottom:1.2rem;font-size:1rem;border-bottom:2px solid #eef3ff;padding-bottom:0.6rem;">
-                Historial d'incidències
-                <span style="font-size:0.8rem;font-weight:400;color:#888;margin-left:0.5rem;">
-                    (<?= count($incidencies) ?> total)
-                </span>
-            </h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #eef3ff;padding-bottom:0.6rem;margin-bottom:1.2rem;">
+                <h3 style="color:#1a4f8a;font-size:1rem;margin:0;">
+                    Historial d'incidències
+                    <span style="font-size:0.8rem;font-weight:400;color:#888;margin-left:0.5rem;">
+                        (<?= count($incidencies) ?> total)
+                    </span>
+                </h3>
+                <?php
+                $incTancades = array_filter($incidencies, fn($i) => $i['dataTancada'] !== null);
+                if (!empty($incTancades)): ?>
+                    <form method="POST" onsubmit="return confirm('Eliminar totes les incidències tancades d\'aquest dispositiu? Aquesta acció no es pot desfer.');">
+                        <input type="hidden" name="accio" value="borrar_historial">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                            style="font-size:0.78rem;padding:3px 10px;">
+                            Borrar historial
+                        </button>
+                    </form>
+                <?php endif; ?>
+            </div>
 
             <?php if (empty($incidencies)): ?>
                 <p style="color:#999;text-align:center;padding:1.5rem 0;">
