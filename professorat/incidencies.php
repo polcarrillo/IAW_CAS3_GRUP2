@@ -13,18 +13,32 @@ requerirProfessor();
 
 $db = getDB();
 
-// Acció: tancar incidència
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['tancar_id'])) {
-    $tancarId = (int)$_POST['tancar_id'];
+// Acció: canviar estat d'incidència
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inc_id'], $_POST['nou_estat'])) {
+    $incId   = (int)$_POST['inc_id'];
+    $nouEstat = $_POST['nou_estat'];
+
     try {
-        $stmt = $db->prepare(
-            "UPDATE Incidencies SET dataTancada = CURDATE() WHERE id = ? AND dataTancada IS NULL"
-        );
-        $stmt->execute([$tancarId]);
-        setMissatge('Incidència tancada correctament.', 'success');
+        if ($nouEstat === 'tancar') {
+            $db->prepare(
+                "UPDATE Incidencies SET dataTancada = CURDATE() WHERE id = ? AND dataTancada IS NULL"
+            )->execute([$incId]);
+            setMissatge('Incidència tancada correctament.', 'success');
+        } else {
+            $idEstatMap = ['1' => 'Oberta', '2' => 'En procés', '3' => 'Pendent de peça'];
+            $nouEstatInt = (string)(int)$nouEstat;
+            if (isset($idEstatMap[$nouEstatInt])) {
+                $db->prepare(
+                    "UPDATE Incidencies SET idEstat = ? WHERE id = ? AND dataTancada IS NULL"
+                )->execute([$nouEstatInt, $incId]);
+                setMissatge("Estat actualitzat a «{$idEstatMap[$nouEstatInt]}».", 'success');
+            } else {
+                setMissatge('Estat no reconegut.', 'error');
+            }
+        }
     } catch (PDOException $e) {
-        error_log('Error tancant incidència: ' . $e->getMessage());
-        setMissatge('Error en tancar la incidència.', 'error');
+        error_log('Error actualitzant incidència: ' . $e->getMessage());
+        setMissatge('Error en actualitzar la incidència.', 'error');
     }
     header('Location: incidencies.php');
     exit;
@@ -43,6 +57,7 @@ function obtenirIncidenciesObertes(PDO $db): array {
             inc.informacio,
             inc.dataOberta,
             inc.idDispositiu,
+            inc.idEstat,
             e.estat,
             m.idInventari,
             m.numSerie,
@@ -105,12 +120,23 @@ mostrarMissatge();
                 <td><span class="badge-estat badge-inc"><?= h($inc['estat'] ?? 'Sense estat') ?></span></td>
                 <td><?= h($inc['dataOberta']) ?></td>
                 <td style="max-width:250px; font-size:0.83rem;"><?= h(mb_substr($inc['informacio'], 0, 100)) ?>...</td>
-                <td style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
-                    <a href="gestionar_dispositiu.php?id=<?= (int)$inc['idDispositiu'] ?>"
-                       class="btn btn-sm btn-primary">Gestionar</a>
-                    <form method="POST" onsubmit="return confirm('Tancar aquesta incidència?');">
-                        <input type="hidden" name="tancar_id" value="<?= (int)$inc['id'] ?>">
-                        <button type="submit" class="btn btn-sm btn-success">Tancar</button>
+                <td>
+                    <form method="POST" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+                        <input type="hidden" name="inc_id" value="<?= (int)$inc['id'] ?>">
+                        <select name="nou_estat"
+                            style="font-size:0.8rem;padding:3px 6px;border:1px solid #ccc;border-radius:5px;cursor:pointer;">
+                            <option value="1" <?= ($inc['idEstat'] ?? 0) == 1 ? 'selected' : '' ?>>Oberta</option>
+                            <option value="2" <?= ($inc['idEstat'] ?? 0) == 2 ? 'selected' : '' ?>>En procés</option>
+                            <option value="3" <?= ($inc['idEstat'] ?? 0) == 3 ? 'selected' : '' ?>>Pendent de peça</option>
+                            <option value="tancar" style="color:#27ae60;font-weight:600;">✓ Tancar</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-primary"
+                            style="padding:3px 10px;"
+                            onclick="return this.form.nou_estat.value === 'tancar' ? confirm('Tancar aquesta incidència?') : true;">
+                            Aplicar
+                        </button>
+                        <a href="gestionar_dispositiu.php?id=<?= (int)$inc['idDispositiu'] ?>"
+                           class="btn btn-sm" style="padding:3px 8px;background:#6c757d;color:white;">⚙</a>
                     </form>
                 </td>
             </tr>
