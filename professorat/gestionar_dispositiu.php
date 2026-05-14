@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($idAlumne <= 0) {
             setMissatge('Has de seleccionar un alumne.', 'error');
         } elseif ($assignacioActiva) {
-            setMissatge('El dispositiu ja té una assignació activa. Retorna\'l primer.', 'error');
+            setMissatge('El dispositiu ja té una assignació activa. Retornar primer.', 'error');
         } else {
             try {
                 $db->prepare(
