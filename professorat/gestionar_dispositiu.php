@@ -53,7 +53,7 @@ $stmtAss = $db->prepare(
             al.correu, al.grupClasse
      FROM Assignacions ass
      JOIN Alumnes al ON al.id = ass.idAlumne
-     WHERE ass.idMaterial = ? AND (ass.dataFinal IS NULL OR ass.dataFinal >= CURDATE())
+     WHERE ass.idMaterial = ? AND (ass.dataFinal IS NULL OR ass.dataFinal > CURDATE())
      ORDER BY ass.dataInici DESC LIMIT 1"
 );
 $stmtAss->execute([$idMaterial]);
@@ -392,11 +392,7 @@ mostrarMissatge();
                         Des de: <?= h($assignacioActiva['dataInici']) ?>
                     </p>
                     <div style="margin-top:0.8rem;display:flex;gap:0.5rem;">
-                        <a class="btn btn-sm btn-warning"
-                           href="gestionar_alumne.php?id=<?= (int)$assignacioActiva['idAlumne'] ?>">
-                            Veure alumne
-                        </a>
-                        <form method="POST" onsubmit="return confirm('Marcar com a retornat?');" style="display:inline;">
+<form method="POST" onsubmit="return confirm('Marcar com a retornat?');" style="display:inline;">
                             <input type="hidden" name="accio" value="retornar">
                             <input type="hidden" name="idAssignacio" value="<?= (int)$assignacioActiva['idAssignacio'] ?>">
                             <button type="submit" class="btn btn-sm btn-danger">Retornar material</button>
