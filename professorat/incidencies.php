@@ -25,13 +25,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inc_id'], $_POST['nou
             )->execute([$incId]);
             setMissatge('Incidència tancada correctament.', 'success');
         } else {
-            $idEstatMap = ['1' => 'Oberta', '2' => 'En procés', '3' => 'Pendent de peça'];
-            $nouEstatInt = (string)(int)$nouEstat;
-            if (isset($idEstatMap[$nouEstatInt])) {
+            // Comprovem que l'idEstat existeix realment a la taula Estats
+            $stmtEstat = $db->prepare("SELECT estat FROM Estats WHERE id = ?");
+            $stmtEstat->execute([(int)$nouEstat]);
+            $nomEstat = $stmtEstat->fetchColumn();
+            if ($nomEstat !== false) {
                 $db->prepare(
                     "UPDATE Incidencies SET idEstat = ? WHERE id = ? AND dataTancada IS NULL"
-                )->execute([$nouEstatInt, $incId]);
-                setMissatge("Estat actualitzat a «{$idEstatMap[$nouEstatInt]}».", 'success');
+                )->execute([(int)$nouEstat, $incId]);
+                setMissatge("Estat actualitzat a «{$nomEstat}».", 'success');
             } else {
                 setMissatge('Estat no reconegut.', 'error');
             }
@@ -77,6 +79,9 @@ function obtenirIncidenciesObertes(PDO $db): array {
 }
 
 $incidencies = obtenirIncidenciesObertes($db);
+
+// Carrega els estats reals de la BD
+$estats = $db->query("SELECT id, estat FROM Estats ORDER BY id")->fetchAll(PDO::FETCH_KEY_PAIR);
 
 capçalera('Incidències Obertes');
 mostrarMissatge();
@@ -125,9 +130,11 @@ mostrarMissatge();
                         <input type="hidden" name="inc_id" value="<?= (int)$inc['id'] ?>">
                         <select name="nou_estat"
                             style="font-size:0.8rem;padding:3px 6px;border:1px solid #ccc;border-radius:5px;cursor:pointer;">
-                            <option value="1" <?= ($inc['idEstat'] ?? 0) == 1 ? 'selected' : '' ?>>Oberta</option>
-                            <option value="2" <?= ($inc['idEstat'] ?? 0) == 2 ? 'selected' : '' ?>>En procés</option>
-                            <option value="3" <?= ($inc['idEstat'] ?? 0) == 3 ? 'selected' : '' ?>>Pendent de peça</option>
+                            <?php foreach ($estats as $idE => $nomE): ?>
+                            <option value="<?= (int)$idE ?>" <?= ($inc['idEstat'] ?? 0) == $idE ? 'selected' : '' ?>>
+                                <?= h($nomE) ?>
+                            </option>
+                            <?php endforeach; ?>
                             <option value="tancar" style="color:#27ae60;font-weight:600;">✓ Tancar</option>
                         </select>
                         <button type="submit" class="btn btn-sm btn-primary"
