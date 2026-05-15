@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: url('imatges/fondo.png') center center / cover no-repeat fixed;
+            background: linear-gradient(135deg, #1a4f8a 0%, #15407a 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -69,6 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             padding: 2.5rem;
             width: 100%;
             max-width: 400px;
+            border: 4px solid #1a4f8a;
         }
         .logo { text-align: center; margin-bottom: 1.5rem; }
         .logo h1 { color: #1a4f8a; font-size: 1.4rem; margin-top: 0.5rem; }
