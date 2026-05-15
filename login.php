@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #1a4f8a 0%, #15407a 100%);
+            background: url('imatges/fondo.png') center center / cover no-repeat fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
