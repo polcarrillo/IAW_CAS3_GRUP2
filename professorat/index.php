@@ -81,9 +81,4 @@ mostrarMissatge();
     </table>
 </div>
 
-<div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
-    <a class="btn btn-primary" href="dispositius_aula.php">Veure dispositius per aula</a>
-    <a class="btn btn-warning" href="incidencies.php">Veure incidències</a>
-</div>
-
 <?php peu(); ?>
