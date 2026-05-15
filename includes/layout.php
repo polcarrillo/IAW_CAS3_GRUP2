@@ -151,8 +151,8 @@ function capçalera(string $titol = ''): void {
 <nav>
     <a href="<?= BASE_URL ?>professorat/index.php">Inici</a>
     <a href="<?= BASE_URL ?>professorat/dispositius_aula.php">Dispositius per Aula</a>
-    <a href="<?= BASE_URL ?>professorat/dispositius_tipus.php">Per Tipus i Assignat</a>
-    <a href="<?= BASE_URL ?>professorat/alumne_dispositius.php">Cerca Alumne</a>
+    <a href="<?= BASE_URL ?>professorat/dispositius_tipus.php">Gestió de maquinari</a>
+    <a href="<?= BASE_URL ?>professorat/alumne_dispositius.php">Alumnes</a>
     <a href="<?= BASE_URL ?>professorat/incidencies.php">Incidències</a>
     <a href="<?= BASE_URL ?>professorat/nou_alumne.php">Nou Alumne</a>
     <a href="<?= BASE_URL ?>professorat/nou_maquinari.php">Nou Maquinari</a>

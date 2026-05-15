@@ -61,7 +61,7 @@ function obtenirDispositiusAssignats(PDO $db, int $idTipus): array {
 
 $dispositius = obtenirDispositiusAssignats($db, $tipusFiltrat);
 
-capçalera('Dispositius per Tipus i Assignació');
+capçalera('Gestió de maquinari');
 ?>
 
 <div class="card">
