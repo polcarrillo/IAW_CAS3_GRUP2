@@ -14,25 +14,28 @@ requerirProfessor();
 $db = getDB();
 
 // Acció: canviar estat d'incidència
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inc_id'], $_POST['nou_estat'])) {
-    $incId   = (int)$_POST['inc_id'];
-    $nouEstat = $_POST['nou_estat'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inc_id'], $_POST['accio'])) {
+    $incId = (int)$_POST['inc_id'];
+    $accio = $_POST['accio'];
 
     try {
-        if ($nouEstat === 'tancar') {
+        if ($accio === 'tancar') {
+            // Tancar incidència
             $db->prepare(
                 "UPDATE Incidencies SET dataTancada = CURDATE() WHERE id = ? AND dataTancada IS NULL"
             )->execute([$incId]);
             setMissatge('Incidència tancada correctament.', 'success');
-        } else {
-            // Comprovem que l'idEstat existeix realment a la taula Estats
+
+        } elseif ($accio === 'canviar_estat' && isset($_POST['nou_estat'])) {
+            // Canviar estat
+            $nouEstat = (int)$_POST['nou_estat'];
             $stmtEstat = $db->prepare("SELECT estat FROM Estats WHERE id = ?");
-            $stmtEstat->execute([(int)$nouEstat]);
+            $stmtEstat->execute([$nouEstat]);
             $nomEstat = $stmtEstat->fetchColumn();
             if ($nomEstat !== false) {
                 $db->prepare(
                     "UPDATE Incidencies SET idEstat = ? WHERE id = ? AND dataTancada IS NULL"
-                )->execute([(int)$nouEstat, $incId]);
+                )->execute([$nouEstat, $incId]);
                 setMissatge("Estat actualitzat a «{$nomEstat}».", 'success');
             } else {
                 setMissatge('Estat no reconegut.', 'error');
@@ -126,30 +129,47 @@ mostrarMissatge();
                 <td><?= h($inc['dataOberta']) ?></td>
                 <td style="max-width:250px; font-size:0.83rem;"><?= h(mb_substr($inc['informacio'], 0, 100)) ?>...</td>
                 <td>
-                    <form method="POST" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
-                        <input type="hidden" name="inc_id" value="<?= (int)$inc['id'] ?>">
-                        <select name="nou_estat"
-                            style="font-size:0.8rem;padding:3px 6px;border:1px solid #ccc;border-radius:5px;cursor:pointer;">
-                            <?php foreach ($estats as $idE => $nomE): ?>
-                            <option value="<?= (int)$idE ?>" <?= ($inc['idEstat'] ?? 0) == $idE ? 'selected' : '' ?>>
-                                <?= h($nomE) ?>
-                            </option>
-                            <?php endforeach; ?>
-                            <option value="tancar" style="color:#27ae60;font-weight:600;">✓ Tancar</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-primary"
-                            style="padding:3px 10px;"
-                            onclick="return this.form.nou_estat.value === 'tancar' ? confirm('Tancar aquesta incidència?') : true;">
-                            Aplicar
-                        </button>
+                    <div style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">
+
+                        <!-- Formulari canvi d'estat -->
+                        <form method="POST" style="display:flex;gap:0.3rem;align-items:center;">
+                            <input type="hidden" name="inc_id" value="<?= (int)$inc['id'] ?>">
+                            <input type="hidden" name="accio" value="canviar_estat">
+                            <select name="nou_estat"
+                                style="font-size:0.8rem;padding:3px 6px;border:1px solid #ccc;border-radius:5px;cursor:pointer;">
+                                <?php foreach ($estats as $idE => $nomE): ?>
+                                <option value="<?= (int)$idE ?>" <?= ($inc['idEstat'] ?? 0) == $idE ? 'selected' : '' ?>>
+                                    <?= h($nomE) ?>
+                                </option>
+                                <?php endforeach; ?>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary" style="padding:3px 10px;">
+                                Aplicar
+                            </button>
+                        </form>
+
+                        <!-- Formulari tancar (separat) -->
+                        <form method="POST"
+                            onsubmit="return confirm('Tancar aquesta incidència?');"
+                            style="display:inline;">
+                            <input type="hidden" name="inc_id" value="<?= (int)$inc['id'] ?>">
+                            <input type="hidden" name="accio" value="tancar">
+                            <button type="submit" class="btn btn-sm btn-success"
+                                style="padding:3px 10px;background:#27ae60;color:white;border:none;border-radius:5px;cursor:pointer;">
+                                ✓ Tancar
+                            </button>
+                        </form>
+
+                        <!-- Enllaç al dispositiu -->
                         <a href="gestionar_dispositiu.php?id=<?= (int)$inc['idDispositiu'] ?>"
                            class="btn btn-sm" style="padding:3px 8px;background:#6c757d;color:white;">⚙</a>
-                    </form>
+
+                    </div>
                 </td>
             </tr>
         <?php endforeach; ?>
         <?php if (empty($incidencies)): ?>
-            <tr><td colspan="9" style="text-align:center; color:#27ae60; font-weight:600;">✅ No hi ha incidències obertes.</td></tr>
+            <tr><td colspan="9" style="text-align:center; color:#27ae60; font-weight:600;"> No hi ha incidències obertes.</td></tr>
         <?php endif; ?>
         </tbody>
     </table>
