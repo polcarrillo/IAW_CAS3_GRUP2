@@ -81,7 +81,7 @@ function obtenirIncidenciesObertes(PDO $db): array {
 $incidencies = obtenirIncidenciesObertes($db);
 
 // Carrega els estats reals de la BD
-$estats = $db->query("SELECT id, estat FROM Estats ORDER BY id")->fetchAll(PDO::FETCH_KEY_PAIR);
+$estats = $db->query("SELECT id, estat FROM Estats WHERE LOWER(estat) NOT LIKE '%tanca%' ORDER BY id")->fetchAll(PDO::FETCH_KEY_PAIR);
 
 capçalera('Incidències Obertes');
 mostrarMissatge();
