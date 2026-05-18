@@ -84,18 +84,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // ── 1. Editar dades del dispositiu ──────────────────────────────────────
     if ($accio === 'editar_dispositiu') {
-        $idTipus        = (int)($_POST['idTipus'] ?? 0);
-        $idUbicacio     = (int)($_POST['idUbicacio'] ?? 0);
-        $idInventari    = trim($_POST['idInventari'] ?? '');
-        $etiqueta       = trim($_POST['etiquetaDepInf'] ?? '');
-        $numSerie       = trim($_POST['numSerie'] ?? '');
-        $macEthernet    = trim($_POST['macEthernet'] ?? '');
-        $macWifi        = trim($_POST['macWifi'] ?? '');
-        $sace           = trim($_POST['SACE'] ?? '');
-        $dataAdquisicio = $_POST['dataAdquisicio'] ?: null;
+        $tipusSeleccionat = trim($_POST['tipus']          ?? '');
+        $model            = trim($_POST['model']           ?? '');
+        $idUbicacio       = (int)($_POST['idUbicacio']    ?? 0);
+        $idInventari      = trim($_POST['idInventari']    ?? '');
+        $etiqueta         = trim($_POST['etiquetaDepInf'] ?? '');
+        $numSerie         = trim($_POST['numSerie']        ?? '');
+        $macEthernet      = trim($_POST['macEthernet']    ?? '') ?: null;
+        $macWifi          = trim($_POST['macWifi']         ?? '') ?: null;
+        $sace             = trim($_POST['SACE']            ?? '');
+        $dataAdquisicio   = !empty($_POST['dataAdquisicio']) ? $_POST['dataAdquisicio'] : null;
 
-        if ($idTipus <= 0 || empty($idInventari)) {
-            setMissatge("Tipus i numero d'inventari son obligatoris.", 'error');
+        if (empty($tipusSeleccionat) || empty($model)) {
+            setMissatge("El tipus i el model són obligatoris.", 'error');
         } else {
             // Comprova inventari duplicat (excloent el mateix dispositiu)
             $stmtChk = $db->prepare("SELECT id FROM Material WHERE idInventari = ? AND id != ?");
@@ -104,13 +105,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 setMissatge("Ja existeix un altre dispositiu amb l'inventari: " . $idInventari . ".", 'error');
             } else {
                 try {
+                    // Busca o crea l'entrada a TipusMaterial per aquest tipus + model
+                    $stmtFind = $db->prepare("SELECT id FROM TipusMaterial WHERE tipus = ? AND model = ?");
+                    $stmtFind->execute([$tipusSeleccionat, $model]);
+                    $idTipus = $stmtFind->fetchColumn();
+
+                    if (!$idTipus) {
+                        $stmtTipus = $db->prepare("INSERT INTO TipusMaterial (tipus, model) VALUES (?, ?)");
+                        $stmtTipus->execute([$tipusSeleccionat, $model]);
+                        $idTipus = $db->lastInsertId();
+                    }
+
                     $db->prepare(
                         "UPDATE Material SET idTipus=?, idInventari=?, etiquetaDepInf=?,
                          numSerie=?, macEthernet=?, macWifi=?, SACE=?,
                          dataAdquisicio=?, idUbicacio=? WHERE id=?"
                     )->execute([
                         $idTipus, $idInventari, $etiqueta ?: null,
-                        $numSerie ?: null, $macEthernet ?: null, $macWifi ?: null,
+                        $numSerie ?: null, $macEthernet, $macWifi,
                         $sace ?: null, $dataAdquisicio, $idUbicacio ?: null,
                         $idMaterial
                     ]);
@@ -289,27 +301,99 @@ mostrarMissatge();
 
         <!-- Formulari edició dades -->
         <div class="card">
-            <h3 style="color:#1a4f8a;margin-bottom:1.2rem;font-size:1rem;border-bottom:2px solid #eef3ff;padding-bottom:0.6rem;">
-                Dades del dispositiu
-            </h3>
+            <h3 style="margin-bottom:1.5rem; color:#1a4f8a;">Dades del dispositiu</h3>
             <form method="POST">
                 <input type="hidden" name="accio" value="editar_dispositiu">
 
+                <?php $tipusOpcions = ['Portàtil', 'Pantalla', 'Tauleta', 'Projector', 'Torre']; ?>
+
+                <!-- Tipus -->
                 <div class="form-group">
-                    <label>Tipus de material</label>
-                    <select name="idTipus" required>
-                        <?php foreach ($tipusList as $t): ?>
-                            <option value="<?= (int)$t['id'] ?>"
-                                <?= (int)$dispositiu['idTipus'] === (int)$t['id'] ? 'selected' : '' ?>>
-                                <?= h($t['tipus']) ?> <?= $t['model'] ? '(' . h($t['model']) . ')' : '' ?>
+                    <label for="tipus">Tipus d'equip: <span style="color:red;">*</span></label>
+                    <select name="tipus" id="tipus" required>
+                        <option value="">-- Selecciona un tipus --</option>
+                        <?php foreach ($tipusOpcions as $t): ?>
+                            <option value="<?= h($t) ?>"
+                                <?= ($dispositiu['tipus'] === $t ? 'selected' : '') ?>>
+                                <?= h($t) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
+                <!-- Model -->
                 <div class="form-group">
-                    <label>Ubicació / Aula</label>
-                    <select name="idUbicacio">
+                    <label for="model">Model: <span style="color:red;">*</span></label>
+                    <input type="text" id="model" name="model"
+                           placeholder="p.ex. HP ProBook 450 G9"
+                           value="<?= h($dispositiu['model'] ?? '') ?>" required>
+                </div>
+
+                <!-- ID Inventari -->
+                <div class="form-group">
+                    <label for="idInventari">ID d'inventari: <span style="color:red;">*</span></label>
+                    <input type="text" id="idInventari" name="idInventari"
+                           value="<?= h($dispositiu['idInventari'] ?? '') ?>"
+                           required maxlength="10"
+                           style="font-weight:600; letter-spacing:1px;">
+                </div>
+
+                <!-- Etiqueta Dep. Informàtica -->
+                <div class="form-group">
+                    <label for="etiquetaDepInf">Etiqueta Dep. Informàtica: <span style="color:red;">*</span></label>
+                    <input type="text" id="etiquetaDepInf" name="etiquetaDepInf"
+                           placeholder="p.ex. AULA3-PC05"
+                           value="<?= h($dispositiu['etiquetaDepInf'] ?? '') ?>"
+                           required maxlength="50">
+                </div>
+
+                <!-- Número de Sèrie -->
+                <div class="form-group">
+                    <label for="numSerie">Número de sèrie: <span style="color:red;">*</span></label>
+                    <input type="text" id="numSerie" name="numSerie"
+                           placeholder="p.ex. 5CD1234XYZ"
+                           value="<?= h($dispositiu['numSerie'] ?? '') ?>"
+                           required maxlength="50">
+                </div>
+
+                <!-- MAC Ethernet (opcional) -->
+                <div class="form-group">
+                    <label for="macEthernet">MAC Ethernet (cable) <span style="color:#888; font-weight:400;">— opcional</span>:</label>
+                    <input type="text" id="macEthernet" name="macEthernet"
+                           placeholder="p.ex. AA:BB:CC:DD:EE:FF"
+                           value="<?= h($dispositiu['macEthernet'] ?? '') ?>"
+                           maxlength="50">
+                </div>
+
+                <!-- MAC WiFi (opcional) -->
+                <div class="form-group">
+                    <label for="macWifi">MAC WiFi (sense fils) <span style="color:#888; font-weight:400;">— opcional</span>:</label>
+                    <input type="text" id="macWifi" name="macWifi"
+                           placeholder="p.ex. 11:22:33:44:55:66"
+                           value="<?= h($dispositiu['macWifi'] ?? '') ?>"
+                           maxlength="50">
+                </div>
+
+                <!-- SACE -->
+                <div class="form-group">
+                    <label for="sace">Codi SACE: <span style="color:red;">*</span></label>
+                    <input type="text" id="sace" name="SACE"
+                           placeholder="p.ex. SACE-00123"
+                           value="<?= h($dispositiu['SACE'] ?? '') ?>"
+                           required maxlength="50">
+                </div>
+
+                <!-- Data d'adquisició -->
+                <div class="form-group">
+                    <label for="dataAdquisicio">Data d'adquisició: <span style="color:red;">*</span></label>
+                    <input type="date" id="dataAdquisicio" name="dataAdquisicio"
+                           value="<?= h($dispositiu['dataAdquisicio'] ?? '') ?>" required>
+                </div>
+
+                <!-- Ubicació / Aula -->
+                <div class="form-group">
+                    <label for="idUbicacio">Ubicació / Aula:</label>
+                    <select name="idUbicacio" id="idUbicacio">
                         <option value="">Sense ubicació</option>
                         <?php foreach ($ubicacions as $u): ?>
                             <option value="<?= (int)$u['id'] ?>"
@@ -320,60 +404,15 @@ mostrarMissatge();
                     </select>
                 </div>
 
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-                    <div class="form-group">
-                        <label>Núm. Inventari</label>
-                        <input type="text" name="idInventari"
-                               value="<?= h($dispositiu['idInventari'] ?? '') ?>"
-                               required maxlength="10">
-                    </div>
-                    <div class="form-group">
-                        <label>Etiqueta Dep. Inf.</label>
-                        <input type="text" name="etiquetaDepInf"
-                               value="<?= h($dispositiu['etiquetaDepInf'] ?? '') ?>"
-                               maxlength="50">
-                    </div>
+                <!-- Botons -->
+                <div style="margin-top:1.5rem; display:flex; gap:1rem;">
+                    <button type="submit" class="btn btn-primary">Desar canvis</button>
+                    <a href="dispositius_tipus.php" class="btn"
+                       style="background:#ccc; color:#333; text-decoration:none; padding:8px 16px; border-radius:4px;">
+                        Tornar
+                    </a>
                 </div>
 
-                <div class="form-group">
-                    <label>Número de sèrie</label>
-                    <input type="text" name="numSerie"
-                           value="<?= h($dispositiu['numSerie'] ?? '') ?>"
-                           maxlength="50">
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-                    <div class="form-group">
-                        <label>MAC Ethernet</label>
-                        <input type="text" name="macEthernet"
-                               value="<?= h($dispositiu['macEthernet'] ?? '') ?>"
-                               maxlength="50" placeholder="AA:BB:CC:DD:EE:FF">
-                    </div>
-                    <div class="form-group">
-                        <label>MAC WiFi</label>
-                        <input type="text" name="macWifi"
-                               value="<?= h($dispositiu['macWifi'] ?? '') ?>"
-                               maxlength="50" placeholder="AA:BB:CC:DD:EE:FF">
-                    </div>
-                </div>
-
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;">
-                    <div class="form-group">
-                        <label>SACE</label>
-                        <input type="text" name="SACE"
-                               value="<?= h($dispositiu['SACE'] ?? '') ?>"
-                               maxlength="50">
-                    </div>
-                    <div class="form-group">
-                        <label>Data adquisició</label>
-                        <input type="date" name="dataAdquisicio"
-                               value="<?= h($dispositiu['dataAdquisicio'] ?? '') ?>">
-                    </div>
-                </div>
-
-                <button type="submit" class="btn btn-primary" style="width:100%;">
-                    Desar canvis
-                </button>
             </form>
         </div>
 
