@@ -150,7 +150,7 @@ function capçalera(string $titol = ''): void {
     if ($rol === ROL_PROFESSOR): ?>
 <nav>
     <a href="<?= BASE_URL ?>professorat/index.php">Inici</a>
-    <a href="<?= BASE_URL ?>professorat/dispositius_tipus.php">Gestió de maquinari</a>
+    <a href="<?= BASE_URL ?>professorat/dispositius_tipus.php">Maquinari</a>
     <a href="<?= BASE_URL ?>professorat/alumne_dispositius.php">Alumnes</a>
     <a href="<?= BASE_URL ?>professorat/incidencies.php">Incidències</a>
     <a href="<?= BASE_URL ?>professorat/nou_alumne.php">Nou Alumne</a>
