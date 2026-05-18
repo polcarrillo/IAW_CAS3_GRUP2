@@ -201,7 +201,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($idInc > 0) {
             try {
                 $db->prepare(
-                    "UPDATE Incidencies SET dataTancada = CURDATE() WHERE id = ? AND idDispositiu = ?"
+                    "UPDATE Incidencies SET dataTancada = CURDATE(), idEstat = 3 WHERE id = ? AND idDispositiu = ? AND dataTancada IS NULL"
                 )->execute([$idInc, $idMaterial]);
                 setMissatge('Incidència tancada correctament.', 'success');
             } catch (PDOException $e) {
