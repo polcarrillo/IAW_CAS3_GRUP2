@@ -39,6 +39,24 @@ $stmtAssig = $db->query(
 );
 $totalAssig = $stmtAssig->fetchColumn();
 
+// Dispositius per aula
+$stmtAula = $db->query(
+    "SELECT
+        u.nom AS aula,
+        tm.tipus,
+        tm.model,
+        COUNT(m.id) AS total
+     FROM Ubicacions u
+     LEFT JOIN Material m ON m.idUbicacio = u.id
+     LEFT JOIN TipusMaterial tm ON m.idTipus = tm.id
+     GROUP BY u.id, u.nom, tm.id, tm.tipus, tm.model
+     ORDER BY u.nom, tm.tipus"
+);
+$perAula = [];
+foreach ($stmtAula->fetchAll() as $fila) {
+    $perAula[$fila['aula']][] = $fila;
+}
+
 capçalera('Panell de Control');
 mostrarMissatge();
 ?>
@@ -80,5 +98,40 @@ mostrarMissatge();
         </tbody>
     </table>
 </div>
+
+<?php foreach ($perAula as $nomAula => $materials): ?>
+<div class="card">
+    <h3 style="color:#1a4f8a; margin-bottom:1rem;">📍 Aula: <?= h($nomAula) ?></h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Tipus</th>
+                <th>Model</th>
+                <th>Total unitats</th>
+            </tr>
+        </thead>
+        <tbody>
+        <?php
+        $totalAula = 0;
+        foreach ($materials as $m):
+            if ($m['tipus'] === null) continue;
+            $totalAula += (int)$m['total'];
+        ?>
+            <tr>
+                <td><?= h($m['tipus']) ?></td>
+                <td><?= h($m['model'] ?? '—') ?></td>
+                <td><?= (int)$m['total'] ?></td>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+        <tfoot>
+            <tr style="font-weight:700; background:#eef3ff;">
+                <td colspan="2">Total aula</td>
+                <td><?= $totalAula ?></td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<?php endforeach; ?>
 
 <?php peu(); ?>
