@@ -73,7 +73,7 @@ if ($idAlumne > 0) {
     }
 }
 
-capçalera('Dispositius d\'un Alumne');
+capçalera('Alumnes');
 ?>
 
 <div class="card">
