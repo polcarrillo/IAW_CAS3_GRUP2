@@ -587,11 +587,14 @@ mostrarMissatge();
                         </p>
 
                         <?php if ($oberta): ?>
-                            <form method="POST" onsubmit="return confirm('Tancar aquesta incidència?');">
-                                <input type="hidden" name="accio" value="tancar_incidencia">
-                                <input type="hidden" name="idIncidencia" value="<?= (int)$inc['id'] ?>">
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    Tancar incidència
+                        <form method="POST" onsubmit="return confirm('Tancar aquesta incidència?');">
+                         <input type="hidden" name="accio" value="tancar_incidencia">
+                         <input type="hidden" name="idIncidencia" value="<?= (int)$inc['id'] ?>">
+                         <input type="hidden" name="idDispositiu" value="<?= (int)$idMaterial ?>">
+                         <button type="submit" class="btn btn-sm btn-success">
+                                Tancar incidència
+                         </button>
+                        </form>
                                 </button>
                             </form>
                         <?php endif; ?>
