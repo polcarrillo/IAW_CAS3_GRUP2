@@ -101,7 +101,7 @@ mostrarMissatge();
 
 <?php foreach ($perAula as $nomAula => $materials): ?>
 <div class="card">
-    <h3 style="color:#1a4f8a; margin-bottom:1rem;">📍 Aula: <?= h($nomAula) ?></h3>
+    <h3 style="color:#1a4f8a; margin-bottom:1rem;">Aula: <?= h($nomAula) ?></h3>
     <table>
         <thead>
             <tr>
