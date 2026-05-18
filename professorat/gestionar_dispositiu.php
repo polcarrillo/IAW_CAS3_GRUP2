@@ -434,9 +434,11 @@ mostrarMissatge();
                     </p>
                     <div style="margin-top:0.8rem;display:flex;gap:0.5rem;">
 <form method="POST" onsubmit="return confirm('Marcar com a retornat?');" style="display:inline;">
-                            <input type="hidden" name="accio" value="retornar">
-                            <input type="hidden" name="idAssignacio" value="<?= (int)$assignacioActiva['idAssignacio'] ?>">
-                            <button type="submit" class="btn btn-sm btn-danger">Retornar material</button>
+    <input type="hidden" name="accio" value="retornar">
+    <input type="hidden" name="idAssignacio" value="<?= (int)$assignacioActiva['idAssignacio'] ?>">
+    <input type="hidden" name="idMaterial" value="<?= (int)$idMaterial ?>">
+    <button type="submit" class="btn btn-sm btn-danger">Retornar material</button>
+</form>
                         </form>
                     </div>
                 </div>
