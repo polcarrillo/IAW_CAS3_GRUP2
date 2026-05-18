@@ -20,9 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['inc_id'], $_POST['acc
 
     try {
         if ($accio === 'tancar') {
-            // Tancar incidència
+            // Tancar incidència: marcar data i posar estat "Tancada" (id=3)
             $db->prepare(
-                "UPDATE Incidencies SET dataTancada = CURDATE() WHERE id = ? AND dataTancada IS NULL"
+                "UPDATE Incidencies SET dataTancada = CURDATE(), idEstat = 3 WHERE id = ? AND dataTancada IS NULL"
             )->execute([$incId]);
             setMissatge('Incidència tancada correctament.', 'success');
 
